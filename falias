@@ -178,6 +178,6 @@ else
 	if [ ! -f $editor ] || [ ! -x $editor ]; then
 		editor=`which vi`
 	fi
-	$editor "$file" &
+	$editor "$file"
 	exit 0
 fi	

@@ -35,6 +35,10 @@ usage() {
 	cat << EOF
 USAGE
 
+falias aliasname 
+	Opens the file corresponding to 'aliasname' in the default editor, 
+        defined as the first found of : EDITOR env variable, xdg-open, /usr/bin/editor, vim
+
 falias list
 	Lists all aliases
 	

@@ -6,8 +6,7 @@ Tired of having to type the full path of every config file you need to edit? Tak
 
 ```
 sudo wget https://raw.githubusercontent.com/christophetd/falias/master/falias -O /usr/bin/falias
-
-sudo chmox +x /usr/bin/falias
+sudo chmod +x /usr/bin/falias
 ```
 
 ## Usage

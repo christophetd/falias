@@ -60,6 +60,14 @@ NOTES
 EOF
 }
 
+# checks that the main config file is writeable
+check_config_file_writeable() {
+	if [ ! -w $CONFIG_INIFILE ]; then
+		error "The main config file '$CONFIG_INIFILE' must be writeable"
+		exit 1	
+	fi
+}
+
 # check that the main config file exists : if not, try to create it
 if [ ! -f $CONFIG_INIFILE ]; then
 	echo "Main config file '$CONFIG_INIFILE' not found, trying to create it... "
@@ -72,10 +80,6 @@ if [ ! -f $CONFIG_INIFILE ]; then
 	fi
 fi
 
-# check that the main config file is writeable
-if [ ! -w $CONFIG_INIFILE ]; then
-		error "The main config file '$CONFIG_INIFILE' must be writeable"
-fi
 
 require_num_args $# 1
 cmd="$1"
@@ -86,6 +90,7 @@ if [ $cmd = "list" ]; then
 	sed -e 's/^/Alias /g' -e 's/=/ <--> /g' $CONFIG_INIFILE
 	
 elif [ $cmd = "add" ]; then
+	check_config_file_writeable
 	require_num_args $# 3
 	
 	alias="$2"
@@ -103,6 +108,7 @@ elif [ $cmd = "add" ]; then
 	echo "$alias=$file" >> $CONFIG_INIFILE
 	
 elif [ $cmd = "edit" ] || [ $cmd = "update" ]; then
+	check_config_file_writeable
 	require_num_args $# 3
 	alias="$2"
 	new_file=`readlink -e "$3"` # get full file path
@@ -126,6 +132,7 @@ elif [ $cmd = "edit" ] || [ $cmd = "update" ]; then
 	fi
 
 elif [ $cmd = "remove" ] || [ $cmd = "delete" ]; then
+	check_config_file_writeable
 	require_num_args $# 2
 	alias="$2"
 	echo "Removing alias '$alias'"
@@ -139,6 +146,7 @@ elif [ $cmd = "remove" ] || [ $cmd = "delete" ]; then
 	fi
 	
 elif [ $cmd = "flush" ]; then
+	check_config_file_writeable
 	echo -n "Are you sure you want to flush all aliases? (actual files will *NOT* be impacted) ? (y/n) "
 	read ans
 	case "$ans" in
@@ -162,9 +170,14 @@ else
 	#	-> or default commandline editor if /usr/bin/editor exists and is runnable
 	#	-> or vim otherwise
 	
-	if [ ! -z $EDITOR ] && [ -x $EDITOR ]; then
-		$EDITOR "$file"
-		exit 0;
+	if [ ! -z $EDITOR ]; then
+		if [ -f $EDITOR ] && [ -x $EDITOR ]; then
+			$EDITOR "$file"
+			exit 0;
+		elif [ -x `which $EDITOR` ]; then
+			`which $EDITOR` "$file"
+			exit 0;
+		fi
 	fi
 	
 	test_xdgopen=`which xdg-open`
